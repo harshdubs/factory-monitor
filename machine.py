@@ -1,4 +1,4 @@
-
+import random
 
 
 class Machine:
@@ -21,15 +21,24 @@ class Mixer(Machine):
         self.mixing_speed = mixing_speed
         super().__init__(name,location)
 
-    def set_speed(self,speed,name):
+    def set_speed(self,speed):
         self.mixing_speed = speed
-        print(f"Mixer {self.name} speed set to {self.mixing_speed}")
+
+    def get_sesnor_data(self):
+        self.vibration = random.uniform(0.1,0.5)
+        self.temperature = random.uniform(60,120)
+        return {"speed":self.mixing_speed,"vibration":self.vibration,"temperature":self.temperature}
+
 
 class Extruder(Machine):
     def __init__(self,temperature,name,location):
         self.temperature = temperature
         super().__init__(name,location)
     
-    def set_temperature(self,temperature,name):
-        self.temperature = temperature
-        print(f"Extruder {self.name} temperature set to {self.temperature}")
+    def set_temperature(self):
+        self.temperature = random.uniform(60,120)
+
+    def get_sesnor_data(self):
+        self.pressure = random.uniform(10,100)
+        self.output_rate = random.uniform(5,50)
+        return {"temperature":self.temperature,"pressure":self.pressure,"output_rate":self.output_rate}
