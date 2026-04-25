@@ -21,11 +21,11 @@ class Mixer(Machine):
         self.opc_client = opc_client
         super().__init__(name,location);
 
-    def set_speed(self):
+    def set_speed(self, new_speed):
         root = self.opc_client.get_root_node()
         node = root.get_child(["0:Objects", "2:Factory", "2:Mixer", "2:mixer_speed"])
-        value = node.get_value()
-        self.mixing_speed = value 
+        node.set_value(new_speed)
+        self.mixing_speed = new_speed
 
     def get_sesnor_data(self) ->dict:
         root = self.opc_client.get_root_node()
