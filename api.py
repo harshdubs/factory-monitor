@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from machine import Mixer,Extruder
 import logging
 
@@ -16,13 +16,21 @@ extruder.start()
 
 @app.get("/mixer")
 def get_mixer_data():
-    logger.info(f"Sensor data requested for mixer")
-    return mixer.get_sesnor_data()
+    try:    
+        logger.info(f"Sensor data requested for mixer")
+        return mixer.get_sesnor_data()
+    except Exception as e:
+        logger.error(f"Error fetching mixer data: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/extruder")
 def get_extruder_data():
-    logger.info(f"Sensor data requested for extruder")
-    return extruder.get_sesnor_data()
+    try:    
+        logger.info(f"Sensor data requested for extruder")
+        return extruder.get_sesnor_data()
+    except Exception as e:
+        logger.error(f"Error fetching extruder data: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/")
 def root():
