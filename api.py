@@ -1,16 +1,20 @@
 from fastapi import FastAPI, HTTPException
 from machine import Mixer,Extruder
 import logging
+import os
+
+mixer_speed = int(os.environ.get("MIXER_SPEED", "100"))
+extruder_speed = int(os.environ.get("EXTRUDER_TEMP", "120"))
 
 logging.basicConfig(level = logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
-mixer = Mixer(100,"Mixer-1", "Mixing Area")
+mixer = Mixer(mixer_speed,"Mixer-1", "Mixing Area")
 mixer.start()
 
-extruder = Extruder(120, "TTL","Extrusion Area")
+extruder = Extruder(extruder_speed, "TTL","Extrusion Area")
 extruder.start()
 
 

@@ -1,0 +1,9 @@
+version: '3'
+services:
+  factory-api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - MIXER_SPEED=150
+      - EXTRUDER_TEMP=130
