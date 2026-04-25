@@ -1,5 +1,4 @@
-import random
-
+from opcua import Client
 
 class Machine:
     def __init__(self,name: str,location: str):
@@ -17,28 +16,47 @@ class Machine:
         print(self.status)
 
 class Mixer(Machine):
-    def __init__(self, mixing_speed: float,name,location):
+    def __init__(self, mixing_speed: float,name,location, opc_client):
         self.mixing_speed = mixing_speed
-        super().__init__(name,location)
+        self.opc_client = opc_client
+        super().__init__(name,location);
 
-    def set_speed(self,speed: float):
-        self.mixing_speed = speed
+    def set_speed(self):
+        root = self.opc_client.get_root_node()
+        node = root.get_child(["0:Objects", "2:Factory", "2:Mixer", "2:mixer_speed"])
+        value = node.get_value()
+        self.mixing_speed = value 
 
     def get_sesnor_data(self) ->dict:
-        self.vibration = random.uniform(0.1,0.5)
-        self.temperature = random.uniform(60,120)
+        root = self.opc_client.get_root_node()
+        node = root.get_child(["0:Objects", "2:Factory", "2:Mixer", "2:mixer_vibration"])
+        value = node.get_value()
+        self.vibration = value
+        node = root.get_child(["0:Objects", "2:Factory", "2:Mixer", "2:mixer_temperature"])
+        value = node.get_value()
+        self.temperature = value 
         return {"speed":self.mixing_speed,"vibration":self.vibration,"temperature":self.temperature}
 
 
 class Extruder(Machine):
-    def __init__(self,temperature : float,name: str,location: str):
+    def __init__(self,temperature : float,name: str,location: str, opc_client):
         self.temperature = temperature
+        self.opc_client = opc_client
         super().__init__(name,location)
     
     def set_temperature(self):
-        self.temperature = random.uniform(60,120)
+        root = self.opc_client.get_root_node()
+        node = root.get_child(["0:Objects", "2:Factory", "2:Extruder", "2:extruder_temperature"])
+        value =node.get_value()
+        self.temperature = value
 
     def get_sesnor_data(self) -> dict:
-        self.pressure = random.uniform(10,100)
-        self.output_rate = random.uniform(5,50)
+        root = self.opc_client.get_root_node()
+        node = root.get_child(["0:Objects", "2:Factory", "2:Extruder", "2:extruder_pressure"])
+        value =node.get_value()
+        self.pressure = value
+        
+        node = root.get_child(["0:Objects", "2:Factory", "2:Extruder", "2:extruder_output_rate"])
+        value =node.get_value()
+        self.output_rate = value 
         return {"temperature":self.temperature,"pressure":self.pressure,"output_rate":self.output_rate}

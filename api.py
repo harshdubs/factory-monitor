@@ -3,6 +3,11 @@ from machine import Mixer,Extruder
 import logging
 import os
 from pydantic import BaseModel
+from opcua import Client
+
+opc_client = Client("opc.tcp://localhost:4840/factory")
+opc_client.connect()
+
 
 class MixerData(BaseModel):
     speed: float
@@ -14,6 +19,9 @@ class ExtruderData(BaseModel):
     pressure: float
     output_rate : float
 
+class SpeedCommand(BaseModel):
+    speed: float
+
 mixer_speed = int(os.environ.get("MIXER_SPEED", "100"))
 extruder_speed = int(os.environ.get("EXTRUDER_TEMP", "120"))
 
@@ -22,10 +30,10 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
-mixer = Mixer(mixer_speed,"Mixer-1", "Mixing Area")
+mixer = Mixer(mixer_speed,"Mixer-1", "Mixing Area",opc_client)
 mixer.start()
 
-extruder = Extruder(extruder_speed, "TTL","Extrusion Area")
+extruder = Extruder(extruder_speed, "TTL","Extrusion Area",opc_client)
 extruder.start()
 
 
@@ -46,6 +54,18 @@ def get_extruder_data():
     except Exception as e:
         logger.error(f"Error fetching extruder data: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/mixer/speed/")
+def set_mixer_speed(command: SpeedCommand):
+    try:
+        mixer.set_speed(command.speed)    
+        logger.info(f"Speed updated")
+        return {"message": "speed updated", "new_speed": command.speed}
+    except Exception as e:
+        logger.error(f"Error setting mixer speed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.get("/")
 def root():
