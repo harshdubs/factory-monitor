@@ -2,6 +2,17 @@ from fastapi import FastAPI, HTTPException
 from machine import Mixer,Extruder
 import logging
 import os
+from pydantic import BaseModel
+
+class MixerData(BaseModel):
+    speed: float
+    vibration: float
+    temperature : float
+
+class ExtruderData(BaseModel):
+    temperature: float
+    pressure: float
+    output_rate : float
 
 mixer_speed = int(os.environ.get("MIXER_SPEED", "100"))
 extruder_speed = int(os.environ.get("EXTRUDER_TEMP", "120"))
@@ -18,8 +29,8 @@ extruder = Extruder(extruder_speed, "TTL","Extrusion Area")
 extruder.start()
 
 
-@app.get("/mixer")
-def get_mixer_data():
+@app.get("/mixer", response_model=MixerData)
+def get_mixer_data() -> MixerData: 
     try:    
         logger.info(f"Sensor data requested for mixer")
         return mixer.get_sesnor_data()
@@ -27,7 +38,7 @@ def get_mixer_data():
         logger.error(f"Error fetching mixer data: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/extruder")
+@app.get("/extruder", response_model=ExtruderData)
 def get_extruder_data():
     try:    
         logger.info(f"Sensor data requested for extruder")
